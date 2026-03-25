@@ -5,12 +5,12 @@ require('dotenv').config();
 
 const app = express();
 
-// --- MIDDLEWARE ---
-app.use(express.json()); // Allows server to read JSON data
-app.use(cors());         // Allows frontend access
-app.use(express.static('.')); // Serves your index.html automatically at http://localhost:5000
 
-// --- CONFIGURATION ---
+app.use(express.json()); 
+app.use(cors());         
+app.use(express.static('.'));
+
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY, 
 });
@@ -26,7 +26,6 @@ app.post('/api/chat', async (req, res) => {
     const { message } = req.body;
     const lowerMessage = message.toLowerCase();
 
-    // 1. SAFETY CHECK: Intercept dangerous language before calling AI
     const containsCrisisWord = CRISIS_KEYWORDS.some(word => lowerMessage.includes(word));
     
     if (containsCrisisWord) {
