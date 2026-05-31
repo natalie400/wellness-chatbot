@@ -5,27 +5,36 @@ require('dotenv').config();
 
 const app = express();
 
-
+// --- MIDDLEWARE ---
 app.use(express.json()); 
 app.use(cors());         
-app.use(express.static('.'));
+app.use(express.static('.')); // Serves index.html from the root folder
 
-
+// --- CONFIGURATION ---
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY, 
 });
 
-// Safety Keywords for Crisis Detection
+// Hard-coded Safety Layer
 const CRISIS_KEYWORDS = [
     'suicide', 'kill myself', 'end my life', 'harm myself', 
     'hurt myself', 'self-harm', 'cutting myself'
 ];
 
+// --- ROUTES ---
+
+// Deployment Health Check
+app.get('/api/health', (req, res) => {
+  res.json({ status: "Lulu's brain is online." });
+});
+
+// Chat Logic
 app.post('/api/chat', async (req, res) => {
   try {
     const { message } = req.body;
     const lowerMessage = message.toLowerCase();
 
+    // 1. SAFETY CHECK
     const containsCrisisWord = CRISIS_KEYWORDS.some(word => lowerMessage.includes(word));
     
     if (containsCrisisWord) {
@@ -34,13 +43,13 @@ app.post('/api/chat', async (req, res) => {
       });
     }
 
-    // 2. AI CONVERSATION: If safe, proceed to OpenAI
+    // 2. AI CONVERSATION
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { 
           role: "system", 
-          content: "You are a supportive mental wellness companion. You listen empathetically, suggest mindfulness exercises, and never give medical diagnoses or clinical advice. Always remain kind and encouraging." 
+          content: "You are a supportive mental wellness companion named Lulu. You listen empathetically, suggest mindfulness exercises, and never give medical diagnoses. Always remain kind and encouraging." 
         },
         { role: "user", content: message }
       ],
@@ -49,12 +58,16 @@ app.post('/api/chat', async (req, res) => {
     res.json({ reply: completion.choices[0].message.content });
 
   } catch (error) {
-    console.error("Error with OpenAI:", error);
+    console.error("OpenAI Error:", error);
     res.status(500).json({ error: "Something went wrong with the AI connection." });
   }
 });
 
-const PORT = 5000;
-app.listen(PORT, () => console.log(`🚀 Wellness Server running on http://localhost:${PORT}`));
+// --- SERVER INITIALIZATION ---
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`🚀 Wellness Server running on http://localhost:${PORT}`);
+});
 
+// Export for Vercel Serverless Functions
 module.exports = app;
