@@ -12,7 +12,6 @@
         }
         .footer-gradient { background: linear-gradient(to right, #4c1d95, #831843); }
         .hero-gradient-text { background: linear-gradient(to right, #9333ea, #db2777); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
         .modal-overlay { background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); }
     </style>
 </head>
@@ -24,6 +23,7 @@
 
     <div class="flex flex-col lg:flex-row">
         
+        <!-- LEFT: Informational Content -->
         <main id="main-content" class="w-full lg:w-3/4 p-6 lg:p-12 space-y-12 lg:space-y-20">
             
             <section class="text-center pt-8">
@@ -108,6 +108,7 @@
             </footer>
         </main>
 
+        <!-- RIGHT: Chat with Lulu Sidebar -->
         <aside id="lulu-sidebar" class="w-full lg:w-1/4 bg-white border-l flex flex-col sticky top-16 shadow-2xl z-40">
             <div class="p-6 border-b bg-purple-50 flex items-center gap-4">
                 <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white text-2xl shadow-inner">🦋</div>
@@ -118,7 +119,7 @@
             </div>
 
             <div id="chat-window" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 min-h-[400px]">
-                <div class="bg-white p-4 rounded-2xl shadow-sm text-sm border border-purple-100 max-w-[90%]">
+                <div class="bg-white p-4 rounded-2xl shadow-sm text-sm border border-purple-100 max-[90%]">
                     Hi there! I'm Lulu, your mental wellness companion. How are you feeling today?
                 </div>
             </div>
@@ -135,6 +136,7 @@
         </aside>
     </div>
 
+    <!-- POP-UP MODAL (Resources) -->
     <div id="resource-modal" class="hidden fixed inset-0 z-[100] modal-overlay flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative animate-in fade-in zoom-in duration-300">
             <button onclick="toggleModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
@@ -154,12 +156,10 @@
         const sendBtn = document.getElementById('send-btn');
         const modal = document.getElementById('resource-modal');
 
-      
         function toggleModal() {
             modal.classList.toggle('hidden');
         }
 
-        
         modal.addEventListener('click', (e) => {
             if (e.target === modal) toggleModal();
         });
@@ -183,7 +183,8 @@
             userInput.value = '';
 
             try {
-                const response = await fetch('http://localhost:5000/api/chat', {
+                // Fixed relative URL endpoints for clean environment compatibility on Vercel
+                const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message })
@@ -199,4 +200,5 @@
         userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSend(); });
     </script>
 </body>
+</html>
 </html>
